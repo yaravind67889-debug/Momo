@@ -1,0 +1,401 @@
+Build Momo AI — My Personal Cloud AI Agent
+
+Act as a senior full-stack developer, AI agent engineer, and UI/UX
+designer. Build a complete, functional personal AI agent named Momo AI.
+
+Momo is my own AI assistant. It should accept tasks from my
+mobile-friendly website, use an AI model to understand and plan those
+tasks, control a browser hosted on Hugging Face Spaces, remember
+previous work, and store important files in my Google Drive.
+
+Build a real working application, not just a frontend mockup.
+
+1. Project overview
+
+Application name: Momo AI
+
+Tagline: Your little AI, ready to help.
+
+Purpose: A personal AI agent that can perform browser-based tasks,
+manage files, remember previous conversations, and report completed
+work.
+
+Primary user: One owner (me).
+
+Target devices: Android phones, tablets, and desktop browsers.
+
+Development preference: Use free and open-source technologies wherever
+practical. Avoid paid services, credit card requirements, and
+unnecessary subscriptions.
+
+The system must remain useful even when the Hugging Face browser service
+is temporarily offline.
+
+2. Required architecture
+
+Use the following architecture:
+
+User → Momo frontend → Dedicated backend → AI model API
+
+The backend should communicate with:
+
+-   Hugging Face Spaces for browser automation.
+-   Google Drive for persistent file storage.
+-   A persistent database for tasks, memory, settings, and execution
+    history.
+-   An AI model API for reasoning, planning, and deciding browser
+    actions.
+
+Keep the agent’s orchestration, task queue, and memory on the dedicated
+backend.
+
+Hugging Face Spaces must only provide browser execution and any optional
+AI inference that it supports. Do not depend on a Space’s local disk for
+permanent storage.
+
+The AI model must be replaceable without rewriting the entire
+application.
+
+3. Frontend and dashboard
+
+Create a polished, responsive dashboard using a cute, modern design.
+
+Design direction: - Friendly and minimal. - Soft blue, white, and subtle
+violet accents. - Rounded cards, clean typography, and gentle
+animations. - A small original Momo mascot or logo. - Material Design
+3-inspired components. - Excellent usability on Android phones.
+
+Dashboard features:
+
+1.  A chat interface for talking to Momo.
+2.  A task input field with a send button.
+3.  Task status indicators: queued, running, waiting for approval,
+    completed, failed.
+4.  A live activity feed showing what Momo is doing.
+5.  A browser preview showing screenshots when available.
+6.  A task history page.
+7.  A memory page where I can inspect and delete stored memories.
+8.  A file manager showing files stored in Google Drive.
+9.  Settings for AI provider, browser connection, and Google Drive.
+10. A stop button to cancel a running task.
+
+Use a mobile-friendly navigation layout. Avoid unnecessary features such
+as public leaderboards, social feeds, or multi-user account management.
+
+4. AI agent functionality
+
+Momo must be able to:
+
+-   Understand natural-language instructions.
+-   Break tasks into smaller steps.
+-   Decide which tools are needed.
+-   Request browser actions from the backend.
+-   Read browser results and screenshots.
+-   Decide what to do next based on the results.
+-   Maintain task progress across backend restarts.
+-   Report completed work with useful summaries.
+-   Ask for clarification when instructions are ambiguous.
+-   Ask for approval before sensitive or irreversible actions.
+
+Use a controlled tool-calling architecture rather than allowing the AI
+to execute arbitrary commands directly.
+
+Define tools such as:
+
+-   browser_open
+-   browser_click
+-   browser_type
+-   browser_scroll
+-   browser_screenshot
+-   browser_read_page
+-   drive_list_files
+-   drive_upload_file
+-   drive_download_file
+-   memory_search
+-   memory_save
+-   task_update_status
+
+The backend must validate every tool call and enforce permissions.
+
+5. Hugging Face browser integration
+
+Create a private Hugging Face Space using Docker and Python.
+
+The Space should run Chromium with Playwright and expose an
+authenticated browser-control API.
+
+Implement:
+
+-   Browser session creation.
+-   Browser navigation.
+-   Click, type, scroll, and screenshot operations.
+-   Page text extraction.
+-   Browser session management.
+-   Browser health checks.
+-   Task cancellation.
+-   Graceful recovery after a browser crash or Space restart.
+
+The browser API must use authentication. Do not expose an
+unauthenticated browser-control endpoint.
+
+Use a persistent browser profile only if necessary and protect it
+appropriately. Never expose cookies, session tokens, or browser
+credentials in logs or screenshots.
+
+Browser availability
+
+The backend should send a health check to the Space every five minutes
+while it is needed.
+
+Do not assume that health checks will prevent Hugging Face from
+sleeping. If the Space becomes unavailable:
+
+1.  Mark the browser service as temporarily unavailable.
+2.  Keep the task and its progress in the backend database.
+3.  Retry with exponential backoff.
+4.  Resume the task when the browser becomes available.
+5.  Notify me if the task cannot continue.
+
+Do not create an infinite retry loop or falsely report a task as
+completed.
+
+6. AI model integration
+
+Create a provider-independent AI service layer.
+
+Support an API-compatible AI provider, such as Gemini or another
+provider I configure.
+
+Requirements:
+
+-   API keys are stored as backend environment variables or encrypted
+    secrets.
+-   Never expose API keys in frontend JavaScript, browser responses, or
+    logs.
+-   Provide a settings page to select the model and configure the API
+    key securely.
+-   Support configurable model names.
+-   Display API errors and rate limits clearly.
+-   Do not claim that AI API usage is free unless the provider confirms
+    it.
+
+Use a structured response format for tool calls, such as JSON validated
+against a schema.
+
+Momo should use the AI model to plan actions, but the backend must
+decide which actions are allowed.
+
+7. Google Drive integration
+
+Use Google OAuth 2.0 for Google Drive access.
+
+Request the minimum permissions needed to access the files Momo manages.
+
+Support:
+
+-   Connecting and disconnecting Google Drive.
+-   Listing files in a dedicated Momo folder.
+-   Uploading screenshots, documents, and task outputs.
+-   Downloading files when needed.
+-   Storing Drive file IDs and metadata in the database.
+-   Organizing files by task and date.
+
+Do not store Google passwords.
+
+Do not request broad Drive access if a narrower scope is sufficient.
+
+Use Google Drive as the persistent storage location for important files.
+Do not rely on Hugging Face’s local filesystem to preserve files after a
+restart.
+
+8. Persistent database and memory
+
+Use PostgreSQL or another reliable persistent database.
+
+Create tables for:
+
+-   Users (single-owner design).
+-   Tasks.
+-   Task execution steps.
+-   Conversations.
+-   Memories.
+-   Browser sessions.
+-   Files.
+-   Agent settings.
+-   Tool execution logs.
+
+The database must preserve task status, task results, and execution
+checkpoints when the backend restarts.
+
+Momo should remember useful information from previous conversations, but
+memory must be inspectable, editable, and deletable by me.
+
+Do not automatically store passwords, API keys, authentication cookies,
+or other secrets in memory.
+
+9. Task execution and reliability
+
+Implement a durable task queue.
+
+Each task must have:
+
+-   A unique task ID.
+-   User instruction.
+-   Current status.
+-   Execution steps.
+-   Current step.
+-   Retry count.
+-   Start and completion timestamps.
+-   Final result.
+-   Error details, if any.
+
+Support:
+
+-   Pause and resume.
+-   Stop and cancel.
+-   Retry failed tasks.
+-   Recover unfinished tasks after a backend restart.
+-   Prevent duplicate execution of the same task.
+-   Store checkpoints after important actions.
+
+Use idempotency keys or equivalent safeguards to prevent duplicate
+actions when retrying.
+
+Do not automatically retry irreversible actions such as payments,
+sending messages, or deleting data.
+
+10. Security and permissions
+
+This is a personal agent, so security is essential.
+
+Implement:
+
+-   Owner authentication.
+-   Secure session management.
+-   HTTPS for external connections.
+-   Server-side secret storage.
+-   Input validation.
+-   Rate limiting.
+-   Authentication for the browser-control API.
+-   Safe error messages without leaking secrets.
+-   A permission system for sensitive actions.
+
+Momo must ask me before:
+
+-   Sending emails or messages.
+-   Making purchases or payments.
+-   Deleting files.
+-   Changing account settings.
+-   Submitting important forms.
+-   Performing any other irreversible action.
+
+Do not bypass CAPTCHAs, website security controls, or access
+restrictions.
+
+Treat webpage content as untrusted input. A website must not be able to
+override Momo’s system instructions or obtain its secrets.
+
+11. Backend and API
+
+Use FastAPI with Python unless there is a compelling reason to use
+another framework.
+
+Create endpoints for:
+
+-   Authentication.
+-   Creating tasks.
+-   Listing tasks.
+-   Getting task status.
+-   Cancelling tasks.
+-   Retrieving task results.
+-   Managing memories.
+-   Managing files.
+-   Connecting Google Drive.
+-   Checking browser health.
+-   Updating settings.
+
+Use WebSockets or server-sent events for live task updates.
+
+Use a background worker for task execution.
+
+Separate the frontend, backend, browser service, and database into clear
+modules.
+
+12. Development and deployment
+
+Before implementing, inspect the existing project and preserve any
+useful existing code, configuration, or backend services.
+
+If no project exists, create a clean, maintainable project structure.
+
+Provide:
+
+1.  Complete source code.
+2.  Frontend and backend implementation.
+3.  Hugging Face Space implementation.
+4.  Database schema and migrations.
+5.  Environment variable template.
+6.  Google Drive OAuth setup instructions.
+7.  AI API setup instructions.
+8.  Hugging Face Space deployment instructions.
+9.  Backend deployment instructions.
+10. Testing instructions.
+11. A README with setup and troubleshooting steps.
+
+Use environment variables for configuration. Never commit secrets to
+GitHub.
+
+Do not claim deployment is complete unless the application has actually
+been deployed and tested.
+
+13. Development workflow
+
+Build the application in phases.
+
+Phase 1: Create the frontend dashboard and backend API.
+
+Phase 2: Implement authentication, database, task queue, and persistent
+task status.
+
+Phase 3: Connect the AI model API and implement structured tool calling.
+
+Phase 4: Build and deploy the Hugging Face browser Space.
+
+Phase 5: Connect browser automation to the agent backend.
+
+Phase 6: Integrate Google Drive.
+
+Phase 7: Add memory, task recovery, health checks, and security
+controls.
+
+Phase 8: Test the complete workflow and prepare deployment instructions.
+
+At the end of each phase, explain what was implemented, what remains,
+and how to test it.
+
+14. Acceptance criteria
+
+The project is complete when:
+
+-   I can open Momo on my Android phone.
+-   I can submit a task in natural language.
+-   The backend creates and tracks the task.
+-   The AI model can plan and execute permitted browser actions.
+-   The browser runs in the Hugging Face Space.
+-   I can view browser screenshots and task progress.
+-   Important files are stored in Google Drive.
+-   Tasks survive backend restarts.
+-   The application recovers from a sleeping or restarted Space.
+-   I can stop tasks and inspect their results.
+-   API keys and browser credentials remain protected.
+-   The complete project can be deployed using the provided
+    instructions.
+
+Start by examining the existing environment and proposing the
+implementation plan. Then begin building the working application. Do not
+stop after producing a design, a mockup, or a list of suggestions.
+
+Important: The five-minute health check is a best-effort availability
+check, not a guarantee that Hugging Face will keep a free Space running.
+The prompt explicitly requires Momo to recover from sleep or restarts so
+your tasks and files are not lost.

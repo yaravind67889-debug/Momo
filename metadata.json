@@ -1,0 +1,8 @@
+{
+  "name": "Momo AI",
+  "description": "Your little AI, ready to help. Personal cloud AI agent for browser automation, task planning, memory, and file management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

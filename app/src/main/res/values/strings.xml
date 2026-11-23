@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Momo AI</string>
+    <string name="app_tagline">Your little AI, ready to help.</string>
+    <string name="memory_snippets_title">Memory Snippets</string>
+    <string name="memory_snippets_subtitle">Saved snippets retrieved from the local database</string>
+    <string name="memory_snippets_empty_title">No saved memory snippets yet</string>
+    <string name="memory_snippets_empty_hint">Memories saved by Momo or added in the Memory Vault will appear here.</string>
+    <string name="memory_snippets_count_label">%1$d saved snippets</string>
+    <string name="memory_snippets_count_single">1 saved snippet</string>
+    <string name="memory_snippets_open_action">Snippets</string>
+    <string name="memory_snippets_back_cd">Navigate back</string>
+    <string name="memory_snippets_delete_cd">Delete memory snippet</string>
+    <string name="memory_snippets_open_cd">Open saved memory snippets</string>
+    <string name="memory_snippets_updated_label">Updated %1$s</string>
+    <string name="memory_snippets_tap_hint">Tap to expand</string>
+    <string name="memory_snippets_collapse_hint">Tap to collapse</string>
+    <string name="memory_snippets_input_label">New memory snippet</string>
+    <string name="memory_snippets_input_placeholder">Write a note, fact, or preference to remember…</string>
+    <string name="memory_snippets_save_button">Save</string>
+</resources>
